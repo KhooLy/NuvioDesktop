@@ -1237,6 +1237,8 @@ private fun PlayerControlsState.toControlsJson(isFullscreen: Boolean): String =
         append(',')
         appendJsonField("volumeLevelLabelFormat", volumeLevelLabelFormat)
         append(',')
+        appendJsonObjectField("shortcutBindings", shortcutBindingsJson)
+        append(',')
         appendJsonField("submitIntroLabel", submitIntroLabel)
         append(',')
         appendJsonField("videoSettingsLabel", videoSettingsLabel)
@@ -1548,6 +1550,11 @@ private fun PlayerControlsState.nativeControlsStructureKey(): PlayerControlsStat
 private fun StringBuilder.appendJsonField(name: String, value: String) {
     append('"').append(name).append("\":")
     append(value.toJsonString())
+}
+
+private fun StringBuilder.appendJsonObjectField(name: String, value: String) {
+    append('"').append(name).append("\":")
+    append(value.ifBlank { "{}" })
 }
 
 private fun StringBuilder.appendJsonField(name: String, value: Boolean) {

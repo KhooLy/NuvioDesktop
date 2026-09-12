@@ -35,6 +35,7 @@ import com.nuvio.app.features.streams.StreamItem
 import com.nuvio.app.features.streams.isSelectableForPlayback
 import com.nuvio.app.features.watchprogress.buildPlaybackVideoId
 import com.nuvio.app.features.watching.application.WatchingState
+import com.nuvio.app.features.settings.DesktopShortcutSettingsRepository
 import com.nuvio.app.isDesktop
 import com.nuvio.app.isIos
 import kotlinx.coroutines.launch
@@ -266,6 +267,7 @@ internal fun PlayerScreenRuntime.RenderPlayerRuntimeUi() {
         closeLabel = stringResource(Res.string.compose_player_close),
         mutedLabel = stringResource(Res.string.compose_player_muted),
         volumeLevelLabelFormat = stringResource(Res.string.compose_player_volume_level, "%s"),
+        shortcutBindingsJson = DesktopShortcutSettingsRepository.playerBindingsJson(),
         lockLabel = stringResource(Res.string.compose_player_lock_controls),
         unlockLabel = stringResource(Res.string.compose_player_unlock_controls),
         submitIntroLabel = stringResource(Res.string.submit_intro_action),

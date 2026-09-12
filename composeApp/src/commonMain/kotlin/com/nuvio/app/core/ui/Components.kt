@@ -53,6 +53,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -365,10 +371,22 @@ fun NuvioInputField(
     trailingContent: (@Composable (() -> Unit))? = null,
 ) {
     val tokens = MaterialTheme.nuvio
+    val focusManager = LocalFocusManager.current
+    val shortcutBindings = LocalDesktopShortcutBindings.current
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .onKeyEvent { event ->
+                if (event.type != KeyEventType.KeyDown) return@onKeyEvent false
+                if (event.key == Key.Escape) {
+                    focusManager.clearFocus()
+                    true
+                } else {
+                    shortcutBindings.matchesAny(event)
+                }
+            },
         singleLine = true,
         shape = RoundedCornerShape(NuvioTokens.Radius.lg),
         placeholder = {
