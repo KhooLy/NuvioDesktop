@@ -24,6 +24,7 @@ import com.nuvio.app.features.player.SubtitleRepository
 import com.nuvio.app.features.profiles.ProfileRepository
 import com.nuvio.app.features.profiles.MAX_PROFILES
 import com.nuvio.app.features.search.SearchRepository
+import com.nuvio.app.features.settings.DesktopShortcutSettingsRepository
 import com.nuvio.app.features.settings.ThemeSettingsRepository
 import com.nuvio.app.features.streams.StreamContextStore
 import com.nuvio.app.features.streams.StreamBadgeSettingsRepository
@@ -74,6 +75,7 @@ internal object LocalAccountDataCleaner {
         TrackingProviderRegistry.clearLocalState()
         TrackingSettingsRepository.clearLocalState()
         PlayerSettingsRepository.clearLocalState()
+        DesktopShortcutSettingsRepository.clearLocalState()
         StreamBadgeSettingsRepository.clearLocalState()
         P2pSettingsRepository.clearLocalState()
         CatalogRepository.clear()

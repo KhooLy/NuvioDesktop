@@ -95,6 +95,7 @@ data class PlayerControlsState(
     val closeLabel: String = "Close player",
     val mutedLabel: String = "",
     val volumeLevelLabelFormat: String = "",
+    val shortcutBindingsJson: String = "{}",
     val lockLabel: String = "Lock player controls",
     val unlockLabel: String = "Unlock player controls",
     val submitIntroLabel: String = "Submit Intro",

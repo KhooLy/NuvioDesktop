@@ -12,6 +12,7 @@ import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.Extension
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Keyboard
 import androidx.compose.material.icons.rounded.Link
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Palette
@@ -39,6 +40,7 @@ import nuvio.composeapp.generated.resources.compose_settings_page_licenses_attri
 import nuvio.composeapp.generated.resources.compose_settings_page_notifications
 import nuvio.composeapp.generated.resources.compose_settings_page_playback
 import nuvio.composeapp.generated.resources.compose_settings_page_privacy_policy
+import nuvio.composeapp.generated.resources.compose_settings_page_shortcuts
 import nuvio.composeapp.generated.resources.compose_settings_page_supporters_contributors
 import nuvio.composeapp.generated.resources.compose_settings_root_account_description
 import nuvio.composeapp.generated.resources.compose_settings_root_appearance_description
@@ -53,6 +55,7 @@ import nuvio.composeapp.generated.resources.compose_settings_root_notifications_
 import nuvio.composeapp.generated.resources.compose_settings_root_privacy_policy_description
 import nuvio.composeapp.generated.resources.compose_settings_root_switch_profile_description
 import nuvio.composeapp.generated.resources.compose_settings_root_switch_profile_title
+import nuvio.composeapp.generated.resources.compose_settings_root_shortcuts_description
 import nuvio.composeapp.generated.resources.compose_settings_root_tracking_description
 import nuvio.composeapp.generated.resources.compose_settings_root_about_section
 import nuvio.composeapp.generated.resources.compose_settings_root_account_section
@@ -74,6 +77,7 @@ internal fun LazyListScope.settingsRootContent(
     onPlaybackClick: () -> Unit,
     onAppearanceClick: () -> Unit,
     onAdvancedClick: () -> Unit,
+    onShortcutsClick: () -> Unit,
     onNotificationsClick: () -> Unit,
     onContentDiscoveryClick: () -> Unit,
     onIntegrationsClick: () -> Unit,
@@ -91,6 +95,7 @@ internal fun LazyListScope.settingsRootContent(
     showGeneralSection: Boolean = true,
     showAboutSection: Boolean = true,
     showAdvancedSection: Boolean = true,
+    showShortcutsSection: Boolean = true,
     showSupportersContributorsPage: Boolean = true,
 ) {
     if (showAccountSection) {
@@ -261,6 +266,24 @@ internal fun LazyListScope.settingsRootContent(
                         icon = Icons.Rounded.Tune,
                         isTablet = isTablet,
                         onClick = onAdvancedClick,
+                    )
+                }
+            }
+        }
+    }
+    if (showShortcutsSection) {
+        item {
+            SettingsSection(
+                title = stringResource(Res.string.compose_settings_page_shortcuts),
+                isTablet = isTablet,
+            ) {
+                SettingsGroup(isTablet = isTablet) {
+                    SettingsNavigationRow(
+                        title = stringResource(Res.string.compose_settings_page_shortcuts),
+                        description = stringResource(Res.string.compose_settings_root_shortcuts_description),
+                        icon = Icons.Rounded.Keyboard,
+                        isTablet = isTablet,
+                        onClick = onShortcutsClick,
                     )
                 }
             }

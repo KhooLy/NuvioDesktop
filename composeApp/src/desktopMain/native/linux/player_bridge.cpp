@@ -396,23 +396,51 @@ void setOverlayCursorHidden(Player *player, bool hidden) {
     NUVIO_LOG("overlay cursor %s", hidden ? "hidden" : "shown");
 }
 
+// Return the top-level X window that owns a child window. The player overlay
+// is reparented below the AWT host, so comparing the focus window directly
+// with hostXid is not enough: the focus may currently belong to another child
+// of the same application window.
+Window topLevelWindow(Display *dpy, Window window) {
+    if (!dpy || !window || window == None || window == PointerRoot) return 0;
+
+    Window current = window;
+    while (true) {
+        Window root = 0;
+        Window parent = 0;
+        Window *children = nullptr;
+        unsigned int childCount = 0;
+        const Bool queried = XQueryTree(
+            dpy, current, &root, &parent, &children, &childCount);
+        if (children) XFree(children);
+        if (!queried || !parent || parent == root || parent == current) return current;
+        current = parent;
+    }
+}
+
 // Give the overlay window real X input focus so the page's keydown handlers
 // run — the same position WKWebView (first responder) and WebView2 (SetFocus/
-// MoveFocus) hold on macOS/Windows. The overlay is composite-redirected but
-// still a viewable X window, so it can own the keyboard; error-trapped because
-// a not-yet-viewable window makes XSetInputFocus throw BadMatch.
+// MoveFocus) hold on macOS/Windows. The composite-redirected overlay must not
+// steal focus from another application, though; error-trapped because a
+// not-yet-viewable window makes XSetInputFocus throw BadMatch.
 void focusOverlay(Player *player) {
     if (!player->gtkWindow || !player->overlayXid) return;
     GdkWindow *gw = gtk_widget_get_window(player->gtkWindow);
     if (!gw) return;
     Display *dpy = GDK_WINDOW_XDISPLAY(gw);
+    Window cur = 0;
+    int revert = 0;
+    XGetInputFocus(dpy, &cur, &revert);
+    const bool focusIsOverlay = cur == player->overlayXid;
+    const bool focusIsInHostWindow =
+        topLevelWindow(dpy, cur) == topLevelWindow(dpy, player->hostXid);
+    if (!focusIsOverlay && !focusIsInHostWindow) {
+        NUVIO_LOG("not taking input focus: current=0x%lx host=0x%lx", cur, player->hostXid);
+        return;
+    }
     // Remember the previous focus owner (normally the AWT toplevel) so
     // teardown can hand the keyboard back. Only on the first grab: re-grabs
     // (fullscreen toggles, window refocus) must not save our own overlay.
     if (!player->savedFocusXid) {
-        Window cur = 0;
-        int revert = 0;
-        XGetInputFocus(dpy, &cur, &revert);
         if (cur != player->overlayXid && cur != None && cur != PointerRoot) {
             player->savedFocusXid = cur;
         }

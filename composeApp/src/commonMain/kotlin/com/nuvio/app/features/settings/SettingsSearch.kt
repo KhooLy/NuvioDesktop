@@ -20,6 +20,7 @@ import androidx.compose.material.icons.rounded.Extension
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Hub
 import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.Keyboard
 import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Link
@@ -100,6 +101,7 @@ internal fun settingsSearchEntries(
     val trackingPage = stringResource(Res.string.compose_settings_page_tracking)
     val layoutPage = stringResource(Res.string.compose_settings_page_appearance)
     val advancedPage = stringResource(Res.string.compose_settings_page_advanced)
+    val shortcutsPage = stringResource(Res.string.compose_settings_page_shortcuts)
     val contentDiscoveryPage = stringResource(Res.string.compose_settings_page_content_discovery)
     val downloadsPage = stringResource(Res.string.compose_settings_root_downloads_title)
     val playbackPage = stringResource(Res.string.compose_settings_page_playback)
@@ -227,6 +229,15 @@ internal fun settingsSearchEntries(
         category = advancedCategory,
         icon = Icons.Rounded.Tune,
     )
+    if (isDesktop) {
+        addPage(
+            page = SettingsPage.Shortcuts,
+            key = "shortcuts",
+            title = shortcutsPage,
+            description = stringResource(Res.string.compose_settings_root_shortcuts_description),
+            icon = Icons.Rounded.Keyboard,
+        )
+    }
     addPage(
         page = SettingsPage.ContentDiscovery,
         key = "content-discovery",

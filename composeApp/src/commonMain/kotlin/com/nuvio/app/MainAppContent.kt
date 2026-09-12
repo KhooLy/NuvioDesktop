@@ -73,6 +73,7 @@ import com.nuvio.app.core.ui.PosterZoomAnchorHolder
 import com.nuvio.app.core.ui.PosterZoomOverlayAction
 import com.nuvio.app.core.ui.PosterZoomOverlayExitAnimation
 import com.nuvio.app.core.ui.TrackingListPickerDialog
+import com.nuvio.app.core.ui.handleDesktopShortcut
 import com.nuvio.app.core.ui.isLiquidGlassNativeTabBarSupported
 import com.nuvio.app.core.ui.localizedContinueWatchingSubtitle
 import com.nuvio.app.core.ui.nuvio
@@ -135,6 +136,7 @@ import com.nuvio.app.features.settings.MetaScreenSettingsScreen
 import com.nuvio.app.features.settings.PluginsSettingsScreen
 import com.nuvio.app.features.settings.SupportersContributorsSettingsScreen
 import com.nuvio.app.features.settings.ThemeSettingsRepository
+import com.nuvio.app.features.settings.DesktopShortcutSettingsRepository
 import com.nuvio.app.features.streams.BingeGroupCacheRepository
 import com.nuvio.app.features.streams.StreamAutoPlayPolicy
 import com.nuvio.app.features.streams.StreamLaunch
@@ -183,6 +185,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import com.nuvio.app.core.ui.AppPresenceState
 import com.nuvio.app.core.ui.PresenceSnapshot
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.input.key.onKeyEvent
 import com.nuvio.app.features.player.dispatchNavigationBack
 
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalComposeUiApi::class)
@@ -288,6 +291,10 @@ internal fun MainAppContent(
         PlayerSettingsRepository.ensureLoaded()
         PlayerSettingsRepository.uiState
     }.collectAsStateWithLifecycle()
+    val desktopShortcutSettings by remember {
+        DesktopShortcutSettingsRepository.ensureLoaded()
+        DesktopShortcutSettingsRepository.uiState
+    }.collectAsStateWithLifecycle()
     val p2pSettingsUiState by remember {
         P2pSettingsRepository.ensureLoaded()
         P2pSettingsRepository.uiState
@@ -380,6 +387,30 @@ internal fun MainAppContent(
             AppScreenTab.Library -> libraryScrollToTopRequests.tryEmit(Unit)
             AppScreenTab.Settings -> settingsRootActionRequests.tryEmit(Unit)
         }
+    }
+
+    fun focusSearchFromShortcut() {
+        if (selectedTab != AppScreenTab.Search) {
+            activateTab(AppScreenTab.Search)
+        }
+        searchFocusRequestCount++
+        searchScrollToTopRequests.tryEmit(Unit)
+    }
+
+    fun handleDesktopBack() {
+        if (currentRoute is TabsRoute && selectedTab == AppScreenTab.Settings) {
+            settingsRootActionRequests.tryEmit(Unit)
+            return
+        }
+
+        val routeAtRequest = navController.currentRoute
+        dispatchNavigationBack(
+            isPlayerRoute = routeAtRequest is PlayerRoute,
+            playerBack = registeredPlayerSystemBack
+                ?.takeIf { (route, _) -> route == routeAtRequest }
+                ?.second,
+            pop = { navController.popBackStack() },
+        )
     }
 
     LaunchedEffect(
@@ -1246,6 +1277,15 @@ internal fun MainAppContent(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
+                    .onKeyEvent { event ->
+                        handleDesktopShortcut(
+                            event = event,
+                            bindings = desktopShortcutSettings.bindings,
+                            onTabSelected = ::handleRootTabClick,
+                            onSearchRequested = ::focusSearchFromShortcut,
+                            onBackRequested = ::handleDesktopBack,
+                        )
+                    }
                     .background(MaterialTheme.nuvio.colors.background)
                     .pointerInput(Unit) {
                         awaitPointerEventScope {
